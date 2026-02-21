@@ -3,7 +3,6 @@
 const API_URL = "http://localhost:8000/predict";
 const el = (id) => document.getElementById(id);
 
-// Keep month select at default (June=6) on page load and when district changes
 const setDefaultMonth = (val = "") => {
   const m = el("month");
   if (m) m.value = String(val);
@@ -42,8 +41,8 @@ el("predictBtn").addEventListener("click", async () => {
     return;
   }
 
-  // If someone leaves numeric fields empty -> Number("") = 0 (bad)
-  // So check NaN / empty explicitly:
+  // numeric fields empty -> Number("") = 0 (bad)
+  //  check NaN / empty explicitly:
   const numericKeys = ["temp_avg","precipitation_avg","humidity_avg","cases_lag1","cases_lag2","cases_lag3"];
   for (const k of numericKeys) {
     if (!Number.isFinite(payload[k]) || String(el(k === "temp_avg" ? "temp" :
