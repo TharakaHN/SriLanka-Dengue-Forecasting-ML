@@ -108,44 +108,51 @@ Docker
 Option 1: Local Development (Recommended for Development)
 
 1️⃣ Clone the Repository
-
+```bash
 git clone https://github.com/yourusername/SriLanka-Dengue-Forecasting-ML.git
 cd SriLanka-Dengue-Forecasting-ML
+```
 2️⃣ Create Virtual Environment
-
+```bash
 python -m venv .venv
 .venv\Scripts\activate
+```
 3️⃣ Install Backend Dependencies
-
+```bash
 pip install -r backend/requirements.txt
+```
 4️⃣ Verify Model File Exists Make sure the trained model exists at:
-
 models/dengue_xgb_pipeline.pkl
-5️⃣ Run Backend
 
+5️⃣ Run Backend
+```bash
 uvicorn backend.app.main:app --reload --port 8000
+```
 Backend opens at: http://127.0.0.1:8000
 API Docs: http://127.0.0.1:8000/docs
 
 6️⃣ Run Frontend Open a new terminal and navigate to the project root, then:
+```bash
+#Option A: Use Live Server in VS Code
+#(Right-click frontend/index.html → Open with Live Server)
+#Opens at: http://127.0.0.1:5500
 
-Option A: Use Live Server in VS Code
-(Right-click frontend/index.html → Open with Live Server)
-Opens at: http://127.0.0.1:5500
-
-Option B: Use Python's built-in server
+#Option B: Use Python's built-in server
 cd frontend
 python -m http.server 5500
-
-Then access: http://127.0.0.1:5500
+#Then access: http://127.0.0.1:5500
+```
 Option 2: Docker Compose (Recommended for Production/Demo)
 
 All-in-one: Runs both backend + frontend automatically
-
+```bash
 docker-compose up --build
+```
 Access:
-
-Frontend: http://127.0.0.1:5500
-Backend API: http://127.0.0.1:8000
-API Docs: http://127.0.0.1:8000/docs
+-Frontend: http://127.0.0.1:5500
+-Backend API: http://127.0.0.1:8000
+-API Docs: http://127.0.0.1:8000/docs
 To stop:
+```bash
+docker-compose down
+```
