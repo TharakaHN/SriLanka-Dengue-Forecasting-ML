@@ -12,7 +12,7 @@ app = FastAPI(title="Sri Lanka Dengue Forecast API", version="1.0")
 # Allow frontend (HTML/JS) to call API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ok for demo/assignment
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,6 +46,6 @@ def health():
 def predict(payload: PredictRequest):
     X_row = build_feature_row(payload, lookup_df)
     pred = float(model.predict(X_row)[0])
-    # dengue cases are counts → return as float but you can round in UI
+    # dengue cases are counts → return as float rounded in UI
     return PredictResponse(district=payload.district, month=payload.month, predicted_cases=pred)
 

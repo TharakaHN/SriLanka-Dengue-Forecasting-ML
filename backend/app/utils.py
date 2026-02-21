@@ -17,7 +17,7 @@ def build_feature_row(payload, district_lookup_df: pd.DataFrame) -> pd.DataFrame
     row = match.iloc[0]
     month_sin, month_cos = month_to_cyclical(payload.month)
 
-    # Approx rolling mean from provided lags (consistent with training concept)
+    # Approx rolling mean from provided lags
     cases_roll3 = (payload.cases_lag1 + payload.cases_lag2 + payload.cases_lag3) / 3.0
 
     features = {
