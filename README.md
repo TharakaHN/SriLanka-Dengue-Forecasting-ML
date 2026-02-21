@@ -1,4 +1,4 @@
-🇱🇰 Sri Lanka Dengue Forecasting – Machine Learning System
+Sri Lanka Dengue Forecasting – Machine Learning System
 
 📌 Project Overview
 
@@ -129,14 +129,15 @@ API Docs: http://127.0.0.1:8000/docs
 
 6️⃣ Run Frontend Open a new terminal and navigate to the project root, then:
 
-# Option A: Use Live Server in VS Code
-# Right-click frontend/index.html → Open with Live Server
-# Opens at: http://127.0.0.1:5500
+Option A: Use Live Server in VS Code
+(Right-click frontend/index.html → Open with Live Server)
+Opens at: http://127.0.0.1:5500
 
-# Option B: Use Python's built-in server
+Option B: Use Python's built-in server
 cd frontend
 python -m http.server 5500
-# Then access: http://127.0.0.1:5500
+
+Then access: http://127.0.0.1:5500
 Option 2: Docker Compose (Recommended for Production/Demo)
 
 All-in-one: Runs both backend + frontend automatically
