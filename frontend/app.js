@@ -1,29 +1,26 @@
-// const API_URL = "http://127.0.0.1:8000/predict";
+const API_URL = "http://localhost:8000/predict"; // or 127.0.0.1
 
-const API_URL = "http://localhost:8000/predict";
 const el = (id) => document.getElementById(id);
 
-const setDefaultMonth = (val = "") => {
-  const m = el("month");
-  if (m) m.value = String(val);
-};
-document.addEventListener("DOMContentLoaded", () => setDefaultMonth());
-const _districtEl = el("district");
-if (_districtEl) _districtEl.addEventListener("change", () => setDefaultMonth());
+function setStatus(msg) {
+  el("status").textContent = msg;
+}
 
-const setLoading = (isLoading) => {
-  el("spinner").style.display = isLoading ? "inline-block" : "none";
-  el("predictBtn").disabled = isLoading;
-  el("predictBtn").style.opacity = isLoading ? "0.85" : "1";
-};
+function setLoading(isLoading) {
+  const spinner = el("spinner");
+  const btn = el("predictBtn");
 
-el("predictBtn").addEventListener("click", async () => {
-  el("status").textContent = "";
-  el("predValue").textContent = "—";
-  el("predMeta").textContent = "District: — • Month: —";
+  if (spinner) spinner.style.display = isLoading ? "inline-block" : "none";
+  if (btn) {
+    btn.disabled = isLoading;
+    btn.style.opacity = isLoading ? "0.85" : "1";
+  }
+}
 
-  const payload = {
-    district: el("district").value,
+function getPayload() {
+  // Read values safely
+  return {
+    district: el("district").value.trim(),
     month: Number(el("month").value),
 
     temp_avg: Number(el("temp").value),
@@ -34,54 +31,96 @@ el("predictBtn").addEventListener("click", async () => {
     cases_lag2: Number(el("lag2").value),
     cases_lag3: Number(el("lag3").value),
   };
+}
 
-  // Basic validation
+function validatePayload(payload) {
   if (!payload.district) {
-    el("status").textContent = " Please select a district.";
-    return;
+    return "Please select a district.";
   }
 
-  // numeric fields empty -> Number("") = 0 (bad)
-  //  check NaN / empty explicitly:
-  const numericKeys = ["temp_avg","precipitation_avg","humidity_avg","cases_lag1","cases_lag2","cases_lag3"];
-  for (const k of numericKeys) {
-    if (!Number.isFinite(payload[k]) || String(el(k === "temp_avg" ? "temp" :
-      k === "precipitation_avg" ? "rain" :
-      k === "humidity_avg" ? "hum" :
-      k === "cases_lag1" ? "lag1" :
-      k === "cases_lag2" ? "lag2" : "lag3").value).trim() === "") {
-      el("status").textContent = ` Please fill ${k}.`;
-      return;
+  // Map payload keys -> input ids (no nested ternary)
+  const fieldMap = {
+    temp_avg: "temp",
+    precipitation_avg: "rain",
+    humidity_avg: "hum",
+    cases_lag1: "lag1",
+    cases_lag2: "lag2",
+    cases_lag3: "lag3",
+  };
+
+  for (const [key, inputId] of Object.entries(fieldMap)) {
+    const raw = el(inputId).value.trim();
+
+    // Empty string check
+    if (raw === "") {
+      return `Please fill ${key}.`;
+    }
+
+    // Numeric check
+    if (!Number.isFinite(payload[key])) {
+      return `${key} must be a valid number.`;
     }
   }
 
+  // Month check (optional)
+  if (!Number.isFinite(payload.month) || payload.month < 1 || payload.month > 12) {
+    return "Month must be between 1 and 12.";
+  }
+
+  return null; // valid
+}
+
+async function callPredict(payload) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt);
+  }
+
+  return res.json();
+}
+
+function renderResult(data) {
+  // If you have these elements in UI
+  const predValue = el("predValue");
+  const predMeta = el("predMeta");
+
+  const rounded = Math.round(data.predicted_cases);
+
+  if (predValue) predValue.textContent = `${rounded}`;
+  if (predMeta) predMeta.textContent = `District: ${data.district} • Month: ${data.month}`;
+}
+
+async function onPredictClick() {
+  setStatus("");
   setLoading(true);
-  el("status").textContent = " Predicting...";
 
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const payload = getPayload();
+    const error = validatePayload(payload);
 
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(txt);
+    if (error) {
+      setStatus(`${error}`);
+      return;
     }
 
-    const data = await res.json();
-    const pred = data.predicted_cases;
+    setStatus(" Predicting...");
+    const data = await callPredict(payload);
 
-    el("status").textContent = " Prediction successful";
-    el("predValue").textContent = `${Math.round(pred)}`;
-    el("predMeta").textContent = `District: ${data.district} • Month: ${data.month}`;
+    setStatus(" Prediction successful");
+    renderResult(data);
   } catch (err) {
-    el("status").textContent = " API error (is backend running?)";
-    el("predMeta").textContent = "";
-    el("predValue").textContent = "—";
     console.error(err);
+    setStatus(" API error (check backend is running)");
   } finally {
     setLoading(false);
   }
-});
+}
+
+// Hook button
+el("predictBtn").addEventListener("click", onPredictClick);
