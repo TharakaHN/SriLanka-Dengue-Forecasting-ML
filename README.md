@@ -156,3 +156,7 @@ To stop:
 ```bash
 docker-compose down
 ```
+🎥 Demo Video
+You can watch the full project demonstration here:
+
+👉 [Project Demo Video](https://drive.google.com/file/d/16jYCaXvmWdOu_ja4y2HpLeIcKWtQeDjt/view?usp=sharing)
